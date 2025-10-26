@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valigara-fba-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: valigara-fba-test
+  template:
+    metadata:
+      labels:
+        app: valigara-fba-test
+    spec:
+      containers:
+        - name: app
+          image: yuriy/valigara-fba-test:latest
+          command: ['vendor/bin/phpunit','--colors=always']
+          volumeMounts:
+            - name: code
+              mountPath: /app
+      volumes:
+        - name: code
+          hostPath:
+            path: /path/to/your/code
+            type: Directory

@@ -1,0 +1,8 @@
+# Exclude CI and infra files from export archives
+.github export-ignore
+.php-cs-fixer.php export-ignore
+phpstan.neon export-ignore
+Dockerfile export-ignore
+docker-compose.yml export-ignore
+k8s-deployment.yaml export-ignore
+Makefile export-ignore
