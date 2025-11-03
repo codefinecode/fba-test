@@ -10,6 +10,8 @@ use App\Service\AmazonFbaShippingService;
 use App\Service\Exception\ApiException;
 use App\Service\Exception\ShippingException;
 use App\Service\FbaApiClient;
+use App\Service\FbaClientInterface;
+use App\Service\Exception\TrackingNotFoundException;
 use PHPUnit\Framework\TestCase;
 
 class TestOrder extends AbstractOrder
@@ -131,6 +133,27 @@ class AmazonFbaShippingServiceTest extends TestCase
         $service = new AmazonFbaShippingService($client);
 
         $buyerRaw = json_decode(file_get_contents($mockPath . '/buyer.29664.json'), true);
+        $buyer = new TestBuyer($buyerRaw);
+
+        $service->ship($order, $buyer);
+    }
+
+    public function testShipFailsWhenNoTrackingReturned()
+    {
+        $this->expectException(TrackingNotFoundException::class);
+
+        // Dummy client that returns response without trackingNumber
+        $client = new class implements FbaClientInterface {
+            public function fulfillOrderFromData(array $orderData, array $buyerData): array
+            {
+                return ['status' => 'OK'];
+            }
+        };
+
+        $service = new AmazonFbaShippingService($client);
+
+        $order = new TestOrder(16400);
+        $buyerRaw = json_decode(file_get_contents(__DIR__ . '/../mock/buyer.29664.json'), true);
         $buyer = new TestBuyer($buyerRaw);
 
         $service->ship($order, $buyer);
